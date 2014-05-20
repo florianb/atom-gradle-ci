@@ -17,6 +17,7 @@ module.exports =
         @span 'GradleCI', {outlet: 'statusLabel'}
 
     initialize: =>
+      @enabled = false
       @results = []
       @running = false
       @gradleCli = 'gradle'
@@ -72,6 +73,7 @@ module.exports =
         @showStatus 'no_tests'
         @projectWatcher.on 'change', @directoryChangedEvent
         @resultGroupView = new ResultGroupView
+        @enabled = true
       else
         console.error("GradleCI: couldn't run Gradle.")
         @statusLabel.text "GradleCI disabled"
@@ -131,4 +133,5 @@ module.exports =
       @running = false
 
     showResults: =>
-      @resultGroupView.toggle()
+      if @enabled
+        @resultGroupView.toggle()

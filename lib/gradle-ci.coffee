@@ -29,5 +29,6 @@ module.exports =
     @currentStatusView.initialize
 
   disableStatusView: ->
-    @currentStatusView.destroy()
-    @currentStatusView = null
+    if @currentStatusView
+      @currentStatusView.destroy()
+      @currentStatusView = null
