@@ -4,6 +4,10 @@ Builds your [Gradle](gradle.org)-project, shows the status of the last build in 
 
 This package is inspired by Cliff Rowley's [atom-circle-ci](https://github.com/cliffrowley/atom-circle-ci)-package. I also snooped into MindscapeHQ's [atom-raygun](https://github.com/MindscapeHQ/atom-raygun)-package to learn more about atom-views. Thank you guys! :lollipop:
 
+## Release Notes
+
+ - **0.1.2:** Fixed an issue which interrupted the update process. To force an update launch `apm upgrade` from your command-line.
+
 ## Configuring
 
 Currently there are three available options in Atom's settings:
