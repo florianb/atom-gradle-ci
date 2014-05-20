@@ -22,18 +22,18 @@ module.exports =
       @gradleCli = 'gradle'
       @execAsyncAndSilent = { async: true, silent: true }
 
-      atom.config.observe 'atom-gradle-ci.runAsDaemon', =>
-        @runAsDaemon = atom.config.get 'atom-gradle-ci.runAsDaemon'
-        console.log 'GradleCI: atom-gradle-ci.runAsDaemon: ' + @runAsDaemon
-      atom.config.observe 'atom-gradle-ci.runTasks', =>
-        @runTasks = atom.config.get 'atom-gradle-ci.runTasks'
-        console.log 'GradleCI: atom-gradle-ci.runTasks: ' + @runTasks
-      atom.config.observe 'atom-gradle-ci.triggerBuildAfterSave', =>
-        @triggerBuildAfterSave = atom.config.get 'atom-gradle-ci.triggerBuildAfterSave'
-        console.log 'GradleCI: atom-gradle-ci.triggerBuildAfterSave: ' + @triggerBuildAfterSave
-      atom.config.observe 'atom-gradle-ci.triggerBuildAfterCommit', =>
-        @triggerBuildAfterCommit = atom.config.get 'atom-gradle-ci.triggerBuildAfterCommit'
-        console.log 'GradleCI: atom-gradle-ci.triggerBuildAfterCommit: ' + @triggerBuildAfterCommit
+      atom.config.observe 'gradle-ci.runAsDaemon', =>
+        @runAsDaemon = atom.config.get 'gradle-ci.runAsDaemon'
+        console.log 'GradleCI: gradle-ci.runAsDaemon: ' + @runAsDaemon
+      atom.config.observe 'gradle-ci.runTasks', =>
+        @runTasks = atom.config.get 'gradle-ci.runTasks'
+        console.log 'GradleCI: gradle-ci.runTasks: ' + @runTasks
+      atom.config.observe 'gradle-ci.triggerBuildAfterSave', =>
+        @triggerBuildAfterSave = atom.config.get 'gradle-ci.triggerBuildAfterSave'
+        console.log 'GradleCI: gradle-ci.triggerBuildAfterSave: ' + @triggerBuildAfterSave
+      atom.config.observe 'gradle-ci.triggerBuildAfterCommit', =>
+        @triggerBuildAfterCommit = atom.config.get 'gradle-ci.triggerBuildAfterCommit'
+        console.log 'GradleCI: gradle-ci.triggerBuildAfterCommit: ' + @triggerBuildAfterCommit
 
       console.log "Gradle CI: initializing chokidar on path: " + atom.project.getPath()
       @projectWatcher = chokidar.watch(atom.project.getPath(), { persistent: true, interval: 500, binaryInterval: 500 });
@@ -42,10 +42,10 @@ module.exports =
       console.log "Gradle CI: initialization done."
 
     destroy: =>
-      atom.config.unobserve 'atom-gradle-ci.runAsDaemon'
-      atom.config.unobserve 'atom-gradle-ci.runTasks'
-      atom.config.unobserve 'atom-gradle-ci.triggerBuildAfterSave'
-      atom.config.unobserve 'atom-gradle-ci.triggerBuildAfterCommit'
+      atom.config.unobserve 'gradle-ci.runAsDaemon'
+      atom.config.unobserve 'gradle-ci.runTasks'
+      atom.config.unobserve 'gradle-ci.triggerBuildAfterSave'
+      atom.config.unobserve 'gradle-ci.triggerBuildAfterCommit'
       @resultGroupView.destroy
       @projectWatcher.close
       @detach()
@@ -99,7 +99,7 @@ module.exports =
         @invokeBuild()
 
     invokeBuild: =>
-      console.log 'GradleCI: trying to invoke build.'
+      console.log 'GradleCI: trying to e build.'
 
       if not @running
         console.log 'GradleCI: no build running, invoking new build.'
