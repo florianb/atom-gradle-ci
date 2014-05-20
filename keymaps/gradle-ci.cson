@@ -9,4 +9,4 @@
 # https://atom.io/docs/latest/advanced/keymaps
 
 '.workspace':
-  'cmd-shift-C': 'gradle-ci:toggle'
+  'cmd-shift-C': 'atom-gradle-ci:toggle-results'
