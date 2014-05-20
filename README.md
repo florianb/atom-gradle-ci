@@ -6,6 +6,7 @@ This package is inspired by Cliff Rowley's [atom-circle-ci](https://github.com/c
 
 ## Release Notes
 
+ - **0.1.3:** Fixed project-path as command-line-option.
  - **0.1.2:** Fixed an issue which interrupted the update process. To force an update launch `apm upgrade` from your command-line.
 
 ## Configuring

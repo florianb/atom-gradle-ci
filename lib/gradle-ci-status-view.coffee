@@ -110,6 +110,8 @@ module.exports =
 
         commands = [@gradleCli]
 
+        commands.push("--project-dir " + atom.project.getPath())
+
         if @runAsDaemon
           commands.push('--daemon')
 
