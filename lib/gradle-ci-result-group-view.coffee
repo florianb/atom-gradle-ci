@@ -7,7 +7,7 @@ class ResultGroupView extends ScrollView
     @div class: 'gradle-ci', =>
       @div {class: 'resize-handle', outlet: 'resizeHandle'}, =>
         @span class: 'icon icon-primitive-dot'
-      @div {class: 'gradle-ci-header', outlet: 'header'}
+      @div 'GradleCI ' + atom.packages.getActivePackage('gradle-ci').metadata.version, {class: 'gradle-ci-header', outlet: 'header'}
       @div {class: 'gradle-ci-results', outlet: 'resultList'}
 
   initialize: (statusView) ->
@@ -19,7 +19,7 @@ class ResultGroupView extends ScrollView
     console.log 'GradleCI: ResultGroupView: initialized'
 
   resizeStarted: =>
-    @resized ?= true
+    @resized = true
     $(document.body).on 'mousemove', @resizeView
     $(document.body).on 'mouseup', @resizeStop
 

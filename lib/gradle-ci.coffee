@@ -8,6 +8,7 @@ module.exports =
     runAsDaemon: true
     runTasks: "test"
     triggerBuildAfterSave: true
+    maximumResultHistory: 3
     #triggerBuildAfterCommit: true
 
   currentStatusView: null
