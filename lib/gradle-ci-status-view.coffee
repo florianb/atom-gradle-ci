@@ -29,19 +29,31 @@ module.exports =
         @runTasks = atom.config.get 'gradle-ci.runTasks'
         console.log 'GradleCI: gradle-ci.runTasks: ' + @runTasks
       atom.config.observe 'gradle-ci.triggerBuildAfterSave', =>
-        @triggerBuildAfterSave = atom.config.get 'gradle-ci.triggerBuildAfterSave'
-        console.log 'GradleCI: gradle-ci.triggerBuildAfterSave: ' + @triggerBuildAfterSave
+        @triggerBuildAfterSave =
+          atom.config.get 'gradle-ci.triggerBuildAfterSave'
+
+        console.log 'GradleCI: gradle-ci.triggerBuildAfterSave: ' +
+          @triggerBuildAfterSave
+
       atom.config.observe 'gradle-ci.triggerBuildAfterCommit', =>
-        @triggerBuildAfterCommit = atom.config.get 'gradle-ci.triggerBuildAfterCommit'
-        console.log 'GradleCI: gradle-ci.triggerBuildAfterCommit: ' + @triggerBuildAfterCommit
+        @triggerBuildAfterCommit =
+          atom.config.get 'gradle-ci.triggerBuildAfterCommit'
+        console.log 'GradleCI: gradle-ci.triggerBuildAfterCommit: ' +
+          @triggerBuildAfterCommit
+
       atom.config.observe 'gradle-ci.maximumResultHistory', =>
         @maximumResultHistory = atom.config.get 'gradle-ci.maximumResultHistory'
-        console.log 'GradleCI: gradle-ci.maximumResultHistory: ' + @maximumResultHistory
+        console.log 'GradleCI: gradle-ci.maximumResultHistory: ' +
+          @maximumResultHistory
 
-      console.log "Gradle CI: initializing chokidar on path: " + atom.project.getPath()
-      @projectWatcher = chokidar.watch(atom.project.getPath(), { persistent: true, interval: 500, binaryInterval: 500 });
+      console.log "Gradle CI: initializing chokidar on path: " +
+        atom.project.getPath()
+      @projectWatcher = chokidar.watch(atom.project.getPath(),
+        { persistent: true, interval: 500, binaryInterval: 500 })
 
-      shell.exec("#{@gradleCli} --version", @execAsyncAndSilent, this.checkVersion)
+      shell.exec("#{@gradleCli} --version",
+        @execAsyncAndSilent,
+        this.checkVersion)
       console.log "Gradle CI: initialization done."
 
     destroy: =>
@@ -67,6 +79,7 @@ module.exports =
         @enabled = true
         if @results
           @resultGroupView.setResults()
+          @showStatus(@results[0].status)
         else
           @results = []
 
@@ -113,18 +126,27 @@ module.exports =
         commands.push(@runTasks)
 
         console.log 'GradleCI: prepared build command: ' + commands.join(' ')
-        shell.exec(commands.join(' '), @execAsyncAndSilent, @analyzeBuildResults)
+        shell.exec(commands.join(' '),
+          @execAsyncAndSilent,
+          @analyzeBuildResults)
 
     analyzeBuildResults: (errorcode, output) =>
       console.log "GradleCI: analyzing last build."
       if @results.length >= @maximumResultHistory
         @results.pop()
-      @results.unshift({timestamp: (new Date).getTime(), output: output.trim()})
 
       if errorcode
-        @showStatus 'failed'
+        status = 'failed'
       else
-        @showStatus 'succeeded'
+        status = 'succeeded'
+
+      @showStatus status
+
+      @results.unshift({
+        timestamp: (new Date).getTime(),
+        status: status,
+        output: output.trim()
+      })
 
       @resultGroupView.setResults()
       @running = false
