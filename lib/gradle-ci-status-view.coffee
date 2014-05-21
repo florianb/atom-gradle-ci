@@ -12,7 +12,7 @@ module.exports =
     resultGroupView: null
 
     @content: ->
-      @div {class: 'gradle-ci-status inline-block', click: 'showResults'}, =>
+      @div {class: 'gradle-ci-status inline-block', click: 'toggleResults'}, =>
         @span class: 'status-icon', outlet: 'statusIcon'
         @span 'GradleCI', {outlet: 'statusLabel'}
 
@@ -50,18 +50,6 @@ module.exports =
       @resultGroupView.destroy
       @projectWatcher.close
       @detach()
-
-    notify: (message) =>
-      view = $$ ->
-        @div tabIndex: -1, class: 'overlay from-top', =>
-          @span class: 'inline-block'
-          @span "Gradle CI: #{message}"
-
-      atom.workspaceView.append view
-
-      setTimeout ->
-        view.detach()
-      , 5000
 
     checkVersion: (errorcode, output) =>
       versionRegEx = /Gradle ([\d\.]+)/
@@ -134,6 +122,6 @@ module.exports =
 
       @running = false
 
-    showResults: =>
+    toggleResults: =>
       if @enabled
         @resultGroupView.toggle()
