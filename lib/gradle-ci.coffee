@@ -13,7 +13,7 @@ module.exports =
 
   currentStatusView: null
 
-  activate: () ->
+  activate: (state) ->
     if atom.workspaceView.statusBar?
       @enableStatusView()
     else
@@ -22,7 +22,10 @@ module.exports =
   deactivate: ->
     @disableStatusView()
 
-  enableStatusView: () =>
+  serialize: ->
+    {}
+
+  enableStatusView: ->
     @currentStatusView ?= new GradleCiStatusView
     @currentStatusView.initialize()
 

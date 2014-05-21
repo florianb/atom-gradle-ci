@@ -44,7 +44,7 @@ class ResultGroupView extends ScrollView
     if @hasParent()
       @detach()
     else
-      if @statusView.results.length > 0
+      if @statusView.results? and @statusView.results.length > 0
         @setResults()
         atom.workspaceView.appendToBottom(this)
         @height($(document.body).height() / 3) unless @resized
