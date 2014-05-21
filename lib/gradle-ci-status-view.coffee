@@ -60,7 +60,7 @@ module.exports =
         @statusLabel.text "Gradle #{version}"
         @showStatus 'no_tests'
         @projectWatcher.on 'change', @directoryChangedEvent
-        @resultGroupView = new ResultGroupView
+        @resultGroupView = new ResultGroupView this
         @enabled = true
       else
         console.error("GradleCI: couldn't run Gradle.")
@@ -113,7 +113,6 @@ module.exports =
       if @results.length >= 3
         @results.shift()
       @results.push(output.trim())
-      @resultGroupView.setResults(@results)
 
       if errorcode
         @showStatus 'failed'
