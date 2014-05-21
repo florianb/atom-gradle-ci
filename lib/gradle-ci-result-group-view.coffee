@@ -7,6 +7,7 @@ class ResultGroupView extends ScrollView
     @div class: 'gradle-ci', =>
       @div {class: 'resize-handle', outlet: 'resizeHandle'}, =>
         @span class: 'icon icon-primitive-dot'
+      @div {class: 'gradle-ci-header', outlet: 'header'}
       @div {class: 'gradle-ci-results', outlet: 'resultList'}
 
   initialize: (statusView) ->
