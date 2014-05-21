@@ -115,8 +115,8 @@ module.exports =
     analyzeBuildResults: (errorcode, output) =>
       console.log "GradleCI: analyzing last build."
       if @results.length >= @maximumResultHistory
-        @results.shift()
-      @results.push(output.trim())
+        @results.pop()
+      @results.unshift(output.trim())
 
       if errorcode
         @showStatus 'failed'
