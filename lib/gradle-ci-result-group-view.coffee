@@ -11,7 +11,7 @@ class ResultGroupView extends ScrollView
 
   initialize: (state) ->
     @latestHeight = $(document.body).height() / 3
-    atom.workspaceView.command "atom-gradle-ci:toggle-results", => @toggle()
+    atom.workspaceView.command "gradle-ci:toggle-results", => @toggle()
     @on 'mousedown', '.resize-handle', (e) => @resizeStarted(e)
     super()
     console.log 'GradleCI: ResultGroupView: initialized'
