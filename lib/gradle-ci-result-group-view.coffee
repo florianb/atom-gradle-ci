@@ -7,16 +7,16 @@ class ResultGroupView extends ScrollView
     @div class: 'gradle-ci', =>
       @div {class: 'resize-handle', outlet: 'resizeHandle'}, =>
         @span class: 'icon icon-primitive-dot'
-      @div {class: 'group-header', outlet: 'header'}, =>
-        @div 'GradleCI ' + atom.packages.getActivePackage('gradle-ci').metadata.version, {class: 'inline-block highlight'}
+      @div {class: 'group-header'}, =>
+        @div 'GradleCI ', {class: 'inline-block highlight', outlet: 'header'}
       @div {class: 'group-results', outlet: 'resultList'}
 
   initialize: (statusView) ->
+    super()
     @statusView = statusView
     @resized = false
     atom.workspaceView.command "gradle-ci:toggle-results", => @toggle()
     @on 'mousedown', '.resize-handle', (e) => @resizeStarted(e)
-    super()
     console.log 'GradleCI: ResultGroupView: initialized'
 
   resizeStarted: =>
@@ -45,6 +45,7 @@ class ResultGroupView extends ScrollView
       @detach()
     else
       if @statusView.results? and @statusView.results.length > 0
+        @header.text('gradle ' + atom.packages.getActivePackage('gradle-ci').metadata.version)
         @setResults()
         atom.workspaceView.appendToBottom(this)
         @height($(document.body).height() / 3) unless @resized
