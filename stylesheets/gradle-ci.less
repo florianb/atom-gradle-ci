@@ -7,10 +7,10 @@
 @import "octicon-mixins";
 
 .status-bar {
-  .gradle-ci-status {
+  &.gradle-ci-status {
     margin-left: 10px;
 
-    .status-icon {
+    &.status-icon {
       padding-right: 5px;
     }
   }
@@ -24,12 +24,30 @@
     background: -webkit-linear-gradient(top, rgb(67, 72, 77), rgb(43, 47, 50));
   }
 
-  .gradle-ci-results {
-    padding-top: 10px;
-    .gradle-ci-result {
+  .group-header {
+    padding: 10px;
+    text-align: right;
+
+    .highlight {
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+    }
+  }
+
+  .group-results {
+    .result-container {
       margin-left: 10px;
       margin-right: 10px;
       margin-bottom: 10px;
+
+      .result-header {
+        padding-left: 0.5em;
+        padding-bottom: 0.3em;
+      }
+
+      .result-output {
+        padding: 0.5em;
+      }
     }
   }
 }

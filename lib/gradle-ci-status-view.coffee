@@ -18,7 +18,6 @@ module.exports =
 
     initialize: =>
       @enabled = false
-      @results = []
       @running = false
       @gradleCli = 'gradle'
       @execAsyncAndSilent = { async: true, silent: true }
@@ -66,6 +65,11 @@ module.exports =
         @projectWatcher.on 'change', @directoryChangedEvent
         @resultGroupView = new ResultGroupView this
         @enabled = true
+        if @results
+          @resultGroupView.setResults()
+        else
+          @results = []
+
       else
         console.error("GradleCI: couldn't run Gradle.")
         @statusLabel.text "GradleCI disabled"
@@ -77,8 +81,7 @@ module.exports =
         when 'running' then 'icon-hourglass'
         when 'succeeded' then 'icon-beer'
         when 'failed' then 'icon-bug'
-        when 'no_tests' then 'icon-circle-slash'
-        else                 'icon-circle-slash'
+        else 'icon-circle-slash'
 
       @statusIcon.removeClass().addClass "icon #{icon}"
       atom.workspaceView.statusBar.appendRight(this)
@@ -116,7 +119,7 @@ module.exports =
       console.log "GradleCI: analyzing last build."
       if @results.length >= @maximumResultHistory
         @results.pop()
-      @results.unshift(output.trim())
+      @results.unshift({timestamp: (new Date).getTime(), output: output.trim()})
 
       if errorcode
         @showStatus 'failed'

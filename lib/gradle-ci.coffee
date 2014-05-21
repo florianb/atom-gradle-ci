@@ -17,7 +17,7 @@ module.exports =
     if atom.workspaceView.statusBar?
       @enableStatusView(state)
     else
-      atom.packages.once 'activated', @enableStatusView()
+      atom.packages.once 'activated', @enableStatusView(state)
 
   deactivate: ->
     @disableStatusView()
@@ -26,9 +26,10 @@ module.exports =
     JSON.stringify(@currentStatusView.results)
 
   enableStatusView: (state) =>
+    console.log 'GradleCI: enabling with state: ' + state
     @currentStatusView ?= new GradleCiStatusView
-    @currentStatusView.initialize
     @currentStatusView.results = JSON.parse(state)
+    @currentStatusView.initialize()
 
   disableStatusView: ->
     if @currentStatusView

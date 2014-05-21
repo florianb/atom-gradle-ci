@@ -1,11 +1,15 @@
 {View} = require 'atom'
+timeAgo = require 'damals'
 
 module.exports =
 class ResultView extends View
   @content: ->
-    @div class: 'gradle-ci-result', =>
-      @pre outlet: 'output'
+    @div class: 'result-container', =>
+      @div outlet: 'header', class: 'result-header text-subtle'
+      @div =>
+        @pre outlet: 'output', class: 'result-output'
 
   initialize: (result) ->
     console.log 'GradleCI: ResultView: initialize'
-    @output.text(result)
+    @header.text(timeAgo(result.timestamp))
+    @output.text(result.output)
