@@ -4,9 +4,14 @@ Continuous builds with [Gradle](gradle.org)! Adds a CI-like addon to your status
 
 This package is inspired by Cliff Rowley's [atom-circle-ci](https://github.com/cliffrowley/atom-circle-ci)-package. I also snooped into MindscapeHQ's [atom-raygun](https://github.com/MindscapeHQ/atom-raygun)-package to learn more about atom-views. Thank you guys! :lollipop:
 
+## How to use
 
+Toggle the result-pane via the Packages-menu, the context-menu or through a click on the GradleCi-status-badge on the right side in your status-bar.
 
 ## Release Notes
+
+### 0.2.1
+ - :candy: Added tooltip for the states where the result-pane is active.
 
 ### 0.2.0
  - Refactored package-architecture.
