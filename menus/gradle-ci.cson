@@ -7,7 +7,7 @@
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'Gradle CI'
+      'label': 'GradleCI'
       'submenu': [
         { 'label': 'Toggle Results', 'command': 'gradle-ci:toggle-results' }
       ]

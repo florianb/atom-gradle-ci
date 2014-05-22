@@ -9,7 +9,8 @@ class ResultView extends View
       @div =>
         @pre outlet: 'output', class: 'result-output'
 
-  initialize: (result) ->
-    console.log 'GradleCI: ResultView: initialize'
+  constructor: (centralBuilder) ->
+    super
     @header.text(timeAgo(result.timestamp))
     @output.text(result.output)
+    console.log 'GradleCI: ResultView: initialize'

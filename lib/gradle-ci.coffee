@@ -1,35 +1,31 @@
-
-
+GradleCiBuilder = require './gradle-ci-builder'
 GradleCiStatusView = require './gradle-ci-status-view'
-
+GradleCiResultGroupView = require './gradle-ci-result-group-view'
 
 module.exports =
-  configDefaults:
-    runAsDaemon: true
-    runTasks: "test"
-    triggerBuildAfterSave: true
-    maximumResultHistory: 3
-    #triggerBuildAfterCommit: true
+configDefaults:
+  runAsDaemon: true
+  runTasks: "test"
+  triggerBuildAfterSave: true
+  maximumResultHistory: 3
+  #triggerBuildAfterCommit: true
 
-  currentStatusView: null
+builder: null
+statusView: null
+resultGroupView: null
 
-  activate: (state) ->
-    if atom.workspaceView.statusBar?
-      @enableStatusView()
-    else
-      atom.packages.once 'activated', @enableStatusView()
+activate: ->
+  @builder ?= new GradleCiBuilder
+  @statusView ?= new GradleCiStatusView @builder
+  @resultGroupView ?= new GradleCiResultGroupView @builder
 
-  deactivate: ->
-    @disableStatusView()
+  if atom.workspaceView.statusBar?
+    @enableStatusView()
+  else
+    atom.packages.once 'activated', @enableStatusView()
 
-  serialize: ->
-    {}
-
-  enableStatusView: ->
-    @currentStatusView ?= new GradleCiStatusView
-    @currentStatusView.initialize()
-
-  disableStatusView: ->
-    if @currentStatusView
-      @currentStatusView.destroy()
-      @currentStatusView = null
+deactivate: ->
+  @builder.destroy()
+  @builder = null
+  @statusView = null
+  @resultGroupView = null

@@ -1,4 +1,4 @@
-# Gradle CI
+# GradleCI
 
 Builds your [Gradle](gradle.org)-project, shows the status of the last build in Atom's status bar and gives you access to the 3 previous Gradle-build-outputs.
 
