@@ -99,6 +99,10 @@ class GradleCiBuilder
 
   analyzeBuildResults: (errorcode, output) =>
     console.log "GradleCI: analyzing last build."
+    if @results.length == 0
+      @statusView.destroyTooltip()
+      @statusView.setTooltip "Click me to toggle your build-reports."
+
     if @results.length >= @maximumResultHistory
       @results.pop()
     status = 'undefined'
@@ -111,7 +115,6 @@ class GradleCiBuilder
       status: status,
       output: output.trim()
     })
-    @statusView.destroyTooltip()
     @statusView.setIcon(status)
     @resultGroupView.renderResults()
     @running = false # free build runner
