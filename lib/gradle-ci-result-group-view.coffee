@@ -1,7 +1,12 @@
-{$,$$,ScrollView} = require 'atom'
+{$, ScrollView} = require 'atom'
 
-module.exports =
+
+ResultView = require './gradle-ci-result-view'
+
+
 class ResultGroupView extends ScrollView
+  builder: null
+
   @content: ->
     @div class: 'gradle-ci', =>
       @div class: 'resize-handle', outlet: 'resizeHandle', =>
@@ -13,6 +18,7 @@ class ResultGroupView extends ScrollView
   initialize: (currentBuilder) ->
     @builder = currentBuilder
     @resized = false
+    @visible = false
     atom.workspaceView.command "gradle-ci:toggle-results", => @toggle()
     @on 'mousedown', '.resize-handle', (e) => @resizeStarted(e)
     console.log 'GradleCI: resultGroupView initialized'
@@ -29,22 +35,26 @@ class ResultGroupView extends ScrollView
   resizeView: ({pageY}) =>
     @height($(document.body).height() - pageY)
 
-  setResults: =>
-    console.log 'GradleCI: ResultGroupView: setting ' + @statusView.results.length + ' results'
-    @resultList.empty()
-    views =  @statusView.results.map (result) ->
-      new ResultView(result)
-    views.forEach (view) =>
-      @resultList.append(view)
+  renderResults: =>
+    if @visible
+      console.log 'GradleCI: ResultGroupView: setting ' + @builder.results.length + ' results'
+      @resultList.empty()
+      views =  @builder.results.map (result) ->
+        new ResultView(result)
+      views.forEach (view) =>
+        @resultList.append(view)
 
   toggle: =>
     console.log 'GradleCI: ResultGroupView: toggle'
     if @hasParent()
+      @visible = false
       @detach()
     else
-      if @statusView.results? and @statusView.results.length > 0
+      if @builder.results? and @builder.results.length > 0
+        @visible = true
         @header.text('gradle ' + atom.packages.getActivePackage('gradle-ci').metadata.version)
-        @setResults()
+        @renderResults()
         atom.workspaceView.appendToBottom(this)
         @height($(document.body).height() / 3) unless @resized
-3
+
+module.exports = ResultGroupView

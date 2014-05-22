@@ -1,7 +1,7 @@
 {View} = require 'atom'
 timeAgo = require 'damals'
 
-module.exports =
+
 class ResultView extends View
   @content: ->
     @div class: 'result-container', =>
@@ -9,8 +9,10 @@ class ResultView extends View
       @div =>
         @pre outlet: 'output', class: 'result-output'
 
-  constructor: (centralBuilder) ->
+  constructor: (result) ->
     super
     @header.text(timeAgo(result.timestamp))
     @output.text(result.output)
     console.log 'GradleCI: ResultView: initialize'
+
+module.exports = ResultView
