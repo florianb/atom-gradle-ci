@@ -22,6 +22,8 @@ class GradleCiBuilder
     @statusView ?= new GradleCiStatusView this
     @resultGroupView ?= new GradleCiResultGroupView this
 
+    atom.config.observe 'gradle-ci.colorStatusIcon', =>
+      @colorStatusIcon = atom.config.get 'gradle-ci.colorStatusIcon'
     atom.config.observe 'gradle-ci.runAsDaemon', =>
       @runAsDaemon = atom.config.get 'gradle-ci.runAsDaemon'
     atom.config.observe 'gradle-ci.runTasks', =>
@@ -41,12 +43,15 @@ class GradleCiBuilder
 
   destroy: =>
     console.log 'GradleCI: destroying builder.'
+    atom.config.unobserve 'gradle-ci.colorStatusIcon'
     atom.config.unobserve 'gradle-ci.runAsDaemon'
     atom.config.unobserve 'gradle-ci.runTasks'
     atom.config.unobserve 'gradle-ci.triggerBuildAfterSave'
     #atom.config.unobserve 'gradle-ci.triggerBuildAfterCommit'
     atom.config.unobserve 'gradle-ci.maximumResultHistory'
     @projectWatcher.close()
+    @statusView.destroy()
+    @resultGroupView.destroy()
 
   historyLimitChanged: =>
     console.log "GradleCI: the history-limit did change"
@@ -65,9 +70,11 @@ class GradleCiBuilder
       @projectWatcher.on 'change', @directoryChangedEvent
       @enabled = true
       @statusView.setLabel('Gradle ' + version)
+      @statusView.setTooltip "You don't have any builds yet."
       console.log("GradleCI: Gradle #{version} ready to use.")
     else
       @statusView.setIcon('disabled')
+      @statusView.setTooltip "I'm not able to execute `gradle`."
       console.error("GradleCI: Gradle wasn't executable: " + output)
 
   directoryChangedEvent: (path) =>
@@ -104,6 +111,7 @@ class GradleCiBuilder
       status: status,
       output: output.trim()
     })
+    @statusView.destroyTooltip()
     @statusView.setIcon(status)
     @resultGroupView.renderResults()
     @running = false # free build runner

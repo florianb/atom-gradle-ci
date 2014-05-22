@@ -7,6 +7,7 @@ module.exports =
     runTasks: "test"
     triggerBuildAfterSave: true
     maximumResultHistory: 3
+    colorStatusIcon: true
     #triggerBuildAfterCommit: true
 
   builder: null

@@ -1,4 +1,4 @@
-{$$, View} = require 'atom'
+{$, View} = require 'atom'
 shell = require 'shelljs'
 chokidar = require 'chokidar'
 
@@ -34,16 +34,23 @@ class GradleCiStatusView extends View
   setIcon: (status) =>
     if atom.workspaceView.statusBar?
       icon = switch status
-        when 'disabled' then 'icon-alert'
-        when 'running' then 'icon-hourglass'
-        when 'succeeded' then 'icon-beer'
-        when 'failed' then 'icon-bug'
-        else 'icon-circle-slash'
-      @statusIcon.removeClass().addClass("icon #{icon}")
-      atom.workspaceView.statusBar.appendRight(this)
+        when 'disabled' then 'alert'
+        when 'running' then 'hourglass'
+        when 'succeeded' then 'beer'
+        when 'failed' then 'bug'
+        else 'circle-slash'
 
-  hide: =>
-    @detach()
+      @statusIcon.removeClass().addClass("icon icon-#{icon}")
+
+      iconColor = switch status
+        when 'succeeded' then 'text-success'
+        when 'failed' then 'text-error'
+        else ''
+
+      if @builder.colorStatusIcon and iconColor
+        @statusIcon.addClass("#{iconColor}")
+
+      atom.workspaceView.statusBar.appendRight(this) unless $(this).is(':visible')
 
   toggleResultGroup: =>
     @builder.resultGroupView.toggle()
