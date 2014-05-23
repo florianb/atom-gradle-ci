@@ -6,12 +6,11 @@ This package is inspired by Cliff Rowley's [atom-circle-ci](https://github.com/c
 
 ## How to use
 
+![GradleCI 0.2.1 in action](http://imageshack.com/a/img837/8067/zgd.gif)
+
 Toggle the result-pane via the Packages-menu, the context-menu or through a click on the GradleCi-status-badge on the right side in your status-bar.
 
 ## Release Notes
-
-### 0.2.1
- - :candy: Added tooltip for the states where the result-pane is active.
 
 ### 0.2.0
  - Refactored package-architecture.
@@ -22,6 +21,8 @@ Toggle the result-pane via the Packages-menu, the context-menu or through a clic
  - :candy: Added configuration-setting to customize the number of results being held in memory.
  - :candy: Added icon-coloring to make last build-state more visible (green/red), added corresponding configuration-setting.
  - :candy: Added relative time-stamps to the build-results.
+ - 0.2.2 - Added animated gif to this readme.
+ - 0.2.1 - :candy: Added tooltip for the states where the result-pane is active.
 
 ### 0.1.3
  - Fixed project-path as command-line-option.
