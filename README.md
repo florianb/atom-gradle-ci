@@ -21,6 +21,7 @@ Toggle the result-pane via the Packages-menu, the context-menu or through a clic
  - :candy: Added configuration-setting to customize the number of results being held in memory.
  - :candy: Added icon-coloring to make last build-state more visible (green/red), added corresponding configuration-setting.
  - :candy: Added relative time-stamps to the build-results.
+ - 0.2.3 - Refactored the pane to use [Panetastic](https://www.npmjs.org/package/atom-panetastic), which fixes also the placement of the resize-handle during scrolling.
  - 0.2.2 - Added animated gif to this readme.
  - 0.2.1 - :candy: Added tooltip for the states where the result-pane is active.
 

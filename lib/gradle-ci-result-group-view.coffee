@@ -9,56 +9,23 @@ class ResultGroupView extends ScrollView
 
   @content: ->
     @div class: 'gradle-ci', =>
-      @div class: 'resize-handle', outlet: 'resizeHandle', =>
-        @span class: 'icon icon-primitive-dot'
       @div class: 'group-header', =>
-        @div 'GradleCI ', class: 'inline-block highlight', outlet: 'header'
+        @div 'GradleCI', class: 'inline-block highlight', outlet: 'header'
       @div class: 'group-results', outlet: 'resultList'
 
-  constructor: (currentBuilder) ->
-    super
-    @builder = currentBuilder
-    @resized = false
-    @visible = false
-    atom.workspaceView.command "gradle-ci:toggle-results", => @toggle()
-    @on 'mousedown', '.resize-handle', (e) => @resizeStarted(e)
-    console.log 'GradleCI: resultGroupView initialized'
-
-  destroy: =>
-    @remove()
-
-  resizeStarted: =>
-    @resized = true
-    $(document.body).on 'mousemove', @resizeView
-    $(document.body).on 'mouseup', @resizeStop
-
-  resizeStop: =>
-    $(document.body).off 'mousemove', @resizeView
-    $(document.body).off 'mouseup', @resizeStop
-
-  resizeView: ({pageY}) =>
-    @height($(document.body).height() - pageY)
+  initialize: (params) ->
+    @builder = params.builder
+    console.log 'GradleCI: ResultGroupView: initialized'
 
   renderResults: =>
-    if @visible
-      console.log 'GradleCI: ResultGroupView: setting ' + @builder.results.length + ' results'
+    if @parentView.isVisible()
+      console.log 'GradleCI: ResultGroupView: setting ' +
+        @builder.results.length +
+        ' results'
       @resultList.empty()
       views =  @builder.results.map (result) ->
         new ResultView(result)
       views.forEach (view) =>
         @resultList.append(view)
-
-  toggle: =>
-    console.log 'GradleCI: ResultGroupView: toggle'
-    if @hasParent()
-      @visible = false
-      @detach()
-    else
-      if @builder.results? and @builder.results.length > 0
-        @visible = true
-        @header.text('GradleCI ' + atom.packages.getActivePackage('gradle-ci').metadata.version)
-        @renderResults()
-        atom.workspaceView.appendToBottom(this)
-        @height($(document.body).height() / 3) unless @resized
 
 module.exports = ResultGroupView

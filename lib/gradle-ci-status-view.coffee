@@ -10,7 +10,7 @@ class GradleCiStatusView extends View
   builder: null
 
   @content: ->
-    @div class: 'gradle-ci-status inline-block', click: 'toggleResultGroup', =>
+    @div class: 'gradle-ci-status inline-block', click: 'toggleResults', =>
       @span class: 'status-icon', outlet: 'statusIcon'
       @span 'GradleCI', outlet: 'statusLabel'
 
@@ -52,7 +52,7 @@ class GradleCiStatusView extends View
 
       atom.workspaceView.statusBar.appendRight(this) unless $(this).is(':visible')
 
-  toggleResultGroup: =>
-    @builder.resultGroupView.toggle()
+  toggleResults: =>
+    @builder.toggleResults()
 
 module.exports = GradleCiStatusView
