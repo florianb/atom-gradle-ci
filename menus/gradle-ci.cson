@@ -1,7 +1,9 @@
 # See https://atom.io/docs/latest/creating-a-package#menus for more details
 'context-menu':
-  '.overlayer':
-    'GradleCI: toggle results': 'gradle-ci:toggle-results'
+  'atom-workspace': [{
+    label: 'GradleCI: toggle results',
+    command: 'gradle-ci:toggle-results'
+  }]
 
 'menu': [
   {
@@ -9,7 +11,10 @@
     'submenu': [
       'label': 'GradleCI'
       'submenu': [
-        { 'label': 'Toggle Results', 'command': 'gradle-ci:toggle-results' }
+        {
+          'label': 'Toggle Results',
+          'command': 'gradle-ci:toggle-results'
+        }
       ]
     ]
   }
