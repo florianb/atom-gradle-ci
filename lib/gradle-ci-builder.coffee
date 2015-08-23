@@ -42,6 +42,13 @@ class GradleCiBuilder
 
     atom.workspaceView.command "gradle-ci:toggle-results", => @toggleResults()
 
+    console.log "GradleCI: fetching project-directories, searching for build-files."
+    @projectDirectories = atom.project.getDirectories()
+    @projectDirectories.filter (currentDirectory) -> !currentDirectory.contains('build.gradle')
+
+    console.log "GradleCI: activating watch for directory-changes."
+    @projectDirectories.each (currentDirectory) ->
+      currentDirectory.onDidChange(@directoryChangedEvent(currentDirectory.getPath()))
 
     shell.exec(
       "#{@gradleCli} --version",
