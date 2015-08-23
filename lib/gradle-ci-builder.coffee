@@ -1,6 +1,5 @@
 require 'atom'
 shell = require 'shelljs'
-chokidar = require 'chokidar'
 Panetastic = require 'atom-panetastic'
 
 
@@ -43,10 +42,6 @@ class GradleCiBuilder
 
     atom.workspaceView.command "gradle-ci:toggle-results", => @toggleResults()
 
-    console.log/
-      "GradleCI: setting up chokidar on path: " + atom.project.getPath()
-    @projectWatcher = chokidar.watch(atom.project.getPath(),
-      { persistent: true, interval: 500, binaryInterval: 500 })
 
     shell.exec(
       "#{@gradleCli} --version",
@@ -62,7 +57,7 @@ class GradleCiBuilder
     atom.config.unobserve 'gradle-ci.runTasks'
     atom.config.unobserve 'gradle-ci.triggerBuildAfterSave'
     atom.config.unobserve 'gradle-ci.maximumResultHistory'
-    @projectWatcher.close()
+    #@projectWatcher.close()
     @statusView.destroy()
     @pane.destroy()
 
@@ -81,7 +76,7 @@ class GradleCiBuilder
 
     if errorcode == 0 and output.length > 0 and versionRegEx.test(output)
       version = versionRegEx.exec(output)[1]
-      @projectWatcher.on 'change', @directoryChangedEvent
+      #@projectWatcher.on 'change', @directoryChangedEvent
       @enabled = true
       @statusView.setLabel('Gradle ' + version)
       @statusView.setTooltip "You don't have any builds yet."
@@ -92,17 +87,17 @@ class GradleCiBuilder
       console.error("GradleCI: Gradle wasn't executable: " + output)
 
   directoryChangedEvent: (path) =>
-    console.log 'GradleCI: the project-directory did change.'
+    console.log 'GradleCI: the project-directory "' + path + '" did change.'
     if @triggerBuildAfterSave
-      @invokeBuild()
+      @invokeBuild(path)
 
-  invokeBuild: =>
+  invokeBuild: (path) =>
     console.log 'GradleCI: invoking build.'
     unless @running
       @running = true # block build-runner
 
       commands = [@gradleCli]
-      commands.push("--project-dir " + atom.project.getPath())
+      commands.push("--project-dir " + path)
       if @runAsDaemon
         commands.push('--daemon')
       commands.push(@runTasks)
