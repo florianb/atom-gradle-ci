@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "shelljs": "^0.2.6",
-    "chokidar": "^0.8.2",
     "damals": "^0.9.0",
     "diff": "^1.0.8",
     "atom-panetastic": "^0.1.0"
