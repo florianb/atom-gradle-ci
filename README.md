@@ -1,5 +1,7 @@
 # GradleCI
 
+>> *WARNING*: The current Patch-releases are 'work in progress' to bring the package up to date after the 1.0-release of the Atom-API. I'm very sorry for any inconveniences -- Florian
+
 Continuous builds with [Gradle](gradle.org)! Adds a CI-like addon to your status bar, showing you the last build-status and let you access the last build-reports.
 
 This package is inspired by Cliff Rowley's [atom-circle-ci](https://github.com/cliffrowley/atom-circle-ci)-package. I also snooped into MindscapeHQ's [atom-raygun](https://github.com/MindscapeHQ/atom-raygun)-package to learn more about atom-views. Thank you guys! :lollipop:
