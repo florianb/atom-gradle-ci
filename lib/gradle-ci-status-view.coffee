@@ -13,14 +13,14 @@ class GradleCiStatusView extends View
       @span class: 'status-icon', outlet: 'statusIcon'
       @span 'GradleCI', outlet: 'statusLabel'
 
-  constructor: (currentBuilder) ->
+  constructor: (params) ->
     super
-    @builder = currentBuilder
+    @builder = params.builder
     @tile = null
-    console.log "GradleCI: statusView initialized."
+    console.log "GradleCI: StatusView: initialized."
 
   registerTile: (statusBar) ->
-    @tile = statusBar.addLeftTile(item: this, priority: 0)
+    @tile = statusBar.addRightTile(item: this)
 
   destroy: =>
     @remove()

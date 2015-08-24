@@ -1,7 +1,5 @@
 require 'atom'
 shell = require 'shelljs'
-Panetastic = require 'atom-panetastic'
-
 
 GradleCiStatusView = require './gradle-ci-status-view'
 GradleCiResultGroupView = require './gradle-ci-result-group-view'
@@ -20,15 +18,14 @@ class GradleCiBuilder
     @execAsyncAndSilent = { async: true, silent: true }
     @tooltip = null
 
-    @statusView ?= new GradleCiStatusView this
-    @pane ?= new Panetastic(
+    @statusView = new GradleCiStatusView({ builder: this })
+    @panel = atom.workspace.addBottomPanel(
       {
-        view: GradleCiResultGroupView,
-        active: false,
-        params: { builder: this }
+        item: new GradleCiResultGroupView({ builder: this }),
+        visible: false
       }
     )
-    @groupView = @pane.subview
+    @groupView = @panel.getItem()
 
     atom.config.observe 'gradle-ci.colorStatusIcon', =>
       @colorStatusIcon = atom.config.get 'gradle-ci.colorStatusIcon'
@@ -44,14 +41,21 @@ class GradleCiBuilder
     atom.commands.add 'atom-text-editor',
       "gradle-ci:toggle-results", => @toggleResults()
 
+    # @groupView = new GradleCiResultGroupView({ builder: this })
+    # @opener = atom.workspace.addOpener (uri) ->
+    #   console.log 'called for uri: ' + uri
+    #   if uri.match(new RegExp(/results\.gradleci/))
+    #     return @groupView
+
     console.log "GradleCI: fetching project-directories, searching for build-files."
     @projectDirectories = atom.project.getDirectories()
-    @projectDirectories.filter (currentDirectory) -> !currentDirectory.contains('build.gradle')
+    @projectDirectories.filter (currentDirectory) -> currentDirectory.contains('build.gradle')
 
-    console.log "GradleCI: activating watch for directory-changes."
     for currentDirectory in @projectDirectories
+      path = currentDirectory.getPath()
+      console.log "GradleCI: activating watch for: " + path
       currentDirectory.onDidChange(
-        => directoryChangedEvent(currentDirectory.getPath())
+        => @directoryChangedEvent(path)
       )
 
     shell.exec(
@@ -71,14 +75,15 @@ class GradleCiBuilder
     if @tooltip
       @tooltip.dispose()
     @statusView.destroy()
-    @pane.destroy()
+    @opener.dispose()
+    @panel.destroy()
 
   historyLimitChanged: =>
     @maximumResultHistory =
       atom.config.get('gradle-ci.maximumResultHistory')
     console.log "GradleCI: the history-limit did change to #{@maximumResultHistory}."
 
-    if @groupView?
+    if @groupView
       @groupView.renderResults()
 
   checkVersion: (errorcode, output) =>
@@ -123,33 +128,49 @@ class GradleCiBuilder
   analyzeBuildResults: (errorcode, output) =>
     console.log "GradleCI: analyzing last build."
     if @results.length == 0
-      @pane.active = true
+      #@pane.active = true
 
       if @tooltip
         @tooltip.dispose()
-        @tooltip = atom.tooltips.add(@statusView, "Click me to toggle your build-reports.")
+        @tooltip = atom.tooltips.add(@statusView, {title: "Click me to toggle your build-reports."})
 
       @groupView.header.text('GradleCI ' +
         atom.packages.getActivePackage('gradle-ci').metadata.version)
 
     if @results.length >= @maximumResultHistory
       @results.pop()
+
     status = 'undefined'
     if errorcode
       status = 'failed'
     else
       status = 'succeeded'
+
     @results.unshift({
       timestamp: (new Date).getTime(),
       status: status,
       output: output.trim()
     })
+
     @statusView.setIcon(status)
-    @groupView.renderResults()
-    @running = false # free build runner
+    if @panel.isVisible()
+      @groupView.renderResults()
+    @running = false # free the build runner
 
   toggleResults: =>
-    @pane.toggle()
-    @groupView.renderResults()
+    # if @resultpane
+    #   @resultpane.destroy()
+    # else
+    #   atom.workspace.open(
+    #     'results.gradleci',
+    #     split: atom.config.get('gradle-ci.splitDirection'),
+    #     activatePane: false
+    #   )
+
+    if @panel.isVisible()
+      @panel.hide()
+    else
+      @groupView.renderResults()
+      @panel.show()
 
 module.exports = GradleCiBuilder
