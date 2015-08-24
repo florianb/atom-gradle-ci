@@ -41,7 +41,6 @@ class GradleCiBuilder
     atom.config.observe 'gradle-ci.maximumResultHistory', =>
       @historyLimitChanged()
 
-    #atom.workspaceView.command "gradle-ci:toggle-results", => @toggleResults()
     atom.commands.add 'atom-text-editor',
       "gradle-ci:toggle-results", => @toggleResults()
 
@@ -50,8 +49,10 @@ class GradleCiBuilder
     @projectDirectories.filter (currentDirectory) -> !currentDirectory.contains('build.gradle')
 
     console.log "GradleCI: activating watch for directory-changes."
-    @projectDirectories.each (currentDirectory) ->
-      currentDirectory.onDidChange(@directoryChangedEvent(currentDirectory.getPath()))
+    for currentDirectory in @projectDirectories
+      currentDirectory.onDidChange(
+        => directoryChangedEvent(currentDirectory.getPath())
+      )
 
     shell.exec(
       "#{@gradleCli} --version",
