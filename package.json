@@ -6,7 +6,7 @@
   "repository": "https://github.com/florianb/atom-gradle-ci",
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">=1.0.0"
   },
   "dependencies": {
     "shelljs": "^0.2.6",
