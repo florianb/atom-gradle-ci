@@ -16,22 +16,23 @@ class GradleCiStatusView extends View
   constructor: (currentBuilder) ->
     super
     @builder = currentBuilder
-    if atom.workspaceView.statusBar?
-      @setIcon()
-    else
-      atom.packages.once 'activated', =>
-        @setIcon()
+    @tile = null
     console.log "GradleCI: statusView initialized."
+
+  registerTile: (statusBar) ->
+    @tile = statusBar.addLeftTile(item: this, priority: 0)
 
   destroy: =>
     @remove()
+    if @tile
+      @tile.destroy()
     console.log 'GradleCI: statusView destroyed.'
 
   setLabel: (label) =>
     @statusLabel.text(label)
 
   setIcon: (status) =>
-    if atom.workspaceView.statusBar?
+    if @tile
       icon = switch status
         when 'disabled' then 'alert'
         when 'running' then 'hourglass'
@@ -49,7 +50,7 @@ class GradleCiStatusView extends View
       if @builder.colorStatusIcon and iconColor
         @statusIcon.addClass("#{iconColor}")
 
-      atom.workspaceView.statusBar.appendRight(this) unless $(this).is(':visible')
+  #atom.workspaceView.statusBar.appendRight(this) unless $(this).is(':visible')
 
   toggleResults: =>
     @builder.toggleResults()
