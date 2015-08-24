@@ -39,3 +39,7 @@ module.exports =
   deactivate: ->
     @builder.destroy()
     @builder = null
+
+  # use the statusBar-service to register the tile for the status-view
+  consumeStatusBar: (statusBar) ->
+    @builder.statusView.registerTile(statusBar)
