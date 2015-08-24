@@ -68,14 +68,12 @@ class GradleCiBuilder
     atom.config.unobserve 'gradle-ci.runTasks'
     atom.config.unobserve 'gradle-ci.triggerBuildAfterSave'
     atom.config.unobserve 'gradle-ci.maximumResultHistory'
-    #@projectWatcher.close()
     if @tooltip
       @tooltip.dispose()
     @statusView.destroy()
     @pane.destroy()
 
   historyLimitChanged: =>
-    console.log "GradleCI: the history-limit did change"
     @maximumResultHistory =
       atom.config.get('gradle-ci.maximumResultHistory')
     console.log "GradleCI: the history-limit did change to #{@maximumResultHistory}."
@@ -92,15 +90,12 @@ class GradleCiBuilder
 
     if errorcode == 0 and output.length > 0 and versionRegEx.test(output)
       version = versionRegEx.exec(output)[1]
-      #@projectWatcher.on 'change', @directoryChangedEvent
       @enabled = true
       @statusView.setLabel('Gradle ' + version)
       @tooltip = atom.tooltips.add(@statusView, {title: 'You don\'t have any builds yet.'})
-      #@statusView.setTooltip "You don't have any builds yet."
       console.log("GradleCI: Gradle #{version} ready to use.")
     else
       @statusView.setIcon('disabled')
-      #@statusView.setTooltip "I'm not able to execute `gradle`."
       @tooltip = atom.tooltips.add(@statusView, {title: "I'm not able to execute `gradle`."})
 
       console.error("GradleCI: Gradle wasn't executable: " + output)
@@ -134,8 +129,6 @@ class GradleCiBuilder
         @tooltip.dispose()
         @tooltip = atom.tooltips.add(@statusView, "Click me to toggle your build-reports.")
 
-      #@statusView.destroyTooltip()
-      #@statusView.setTooltip "Click me to toggle your build-reports."
       @groupView.header.text('GradleCI ' +
         atom.packages.getActivePackage('gradle-ci').metadata.version)
 
