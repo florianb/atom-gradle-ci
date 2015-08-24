@@ -77,11 +77,11 @@ class GradleCiBuilder
   historyLimitChanged: =>
     console.log "GradleCI: the history-limit did change"
     @maximumResultHistory =
-      atom.config.getPositiveInt('gradle-ci.maximumResultHistory', 3)
-    if @results? and @results.length > @maximumResultHistory
-      @results = @results.splice(0, @maximumResultHistory)
-      if @groupView?
-        @groupView.renderResults()
+      atom.config.get('gradle-ci.maximumResultHistory')
+    console.log "GradleCI: the history-limit did change to #{@maximumResultHistory}."
+
+    if @groupView?
+      @groupView.renderResults()
 
   checkVersion: (errorcode, output) =>
     versionRegEx = /Gradle ([\d\.]+)/
