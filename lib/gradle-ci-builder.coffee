@@ -41,7 +41,9 @@ class GradleCiBuilder
     atom.config.observe 'gradle-ci.maximumResultHistory', =>
       @historyLimitChanged()
 
-    atom.workspaceView.command "gradle-ci:toggle-results", => @toggleResults()
+    #atom.workspaceView.command "gradle-ci:toggle-results", => @toggleResults()
+    atom.commands.add 'atom-text-editor',
+      "gradle-ci:toggle-results", => @toggleResults()
 
     console.log "GradleCI: fetching project-directories, searching for build-files."
     @projectDirectories = atom.project.getDirectories()
