@@ -1,6 +1,5 @@
-{$, View} = require 'atom'
+{$, View} = require 'atom-space-pen-views'
 shell = require 'shelljs'
-chokidar = require 'chokidar'
 
 
 ResultGroupView = require './gradle-ci-result-group-view'
