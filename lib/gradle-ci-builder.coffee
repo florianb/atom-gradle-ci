@@ -18,6 +18,7 @@ class GradleCiBuilder
     @results = []
     @gradleCli = 'gradle'
     @execAsyncAndSilent = { async: true, silent: true }
+    @tooltip = null
 
     @statusView ?= new GradleCiStatusView this
     @pane ?= new Panetastic(
@@ -65,6 +66,8 @@ class GradleCiBuilder
     atom.config.unobserve 'gradle-ci.triggerBuildAfterSave'
     atom.config.unobserve 'gradle-ci.maximumResultHistory'
     #@projectWatcher.close()
+    if @tooltip
+      @tooltip.dispose()
     @statusView.destroy()
     @pane.destroy()
 
@@ -81,16 +84,22 @@ class GradleCiBuilder
     versionRegEx = /Gradle ([\d\.]+)/
     console.log("GradleCI: going for version-check.")
 
+    if @tooltip
+      @tooltip.dispose()
+
     if errorcode == 0 and output.length > 0 and versionRegEx.test(output)
       version = versionRegEx.exec(output)[1]
       #@projectWatcher.on 'change', @directoryChangedEvent
       @enabled = true
       @statusView.setLabel('Gradle ' + version)
-      @statusView.setTooltip "You don't have any builds yet."
+      @tooltip = atom.tooltips.add(@statusView, {title: 'You don\'t have any builds yet.'})
+      #@statusView.setTooltip "You don't have any builds yet."
       console.log("GradleCI: Gradle #{version} ready to use.")
     else
       @statusView.setIcon('disabled')
-      @statusView.setTooltip "I'm not able to execute `gradle`."
+      #@statusView.setTooltip "I'm not able to execute `gradle`."
+      @tooltip = atom.tooltips.add(@statusView, {title: "I'm not able to execute `gradle`."})
+
       console.error("GradleCI: Gradle wasn't executable: " + output)
 
   directoryChangedEvent: (path) =>
@@ -117,8 +126,13 @@ class GradleCiBuilder
     console.log "GradleCI: analyzing last build."
     if @results.length == 0
       @pane.active = true
-      @statusView.destroyTooltip()
-      @statusView.setTooltip "Click me to toggle your build-reports."
+
+      if @tooltip
+        @tooltip.dispose()
+        @tooltip = atom.tooltips.add(@statusView, "Click me to toggle your build-reports.")
+
+      #@statusView.destroyTooltip()
+      #@statusView.setTooltip "Click me to toggle your build-reports."
       @groupView.header.text('GradleCI ' +
         atom.packages.getActivePackage('gradle-ci').metadata.version)
 
