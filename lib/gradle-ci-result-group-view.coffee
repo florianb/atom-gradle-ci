@@ -9,7 +9,9 @@ class ResultGroupView extends ScrollView
   @content: ->
     @div class: 'gradle-ci', =>
       @div class: 'group-header', =>
-        @div 'GradleCI', class: 'inline-block highlight', outlet: 'header'
+        @span 'GradleCI', class: 'inline-block highlight', outlet: 'header'
+        @span class: 'close-button inline-block', click: 'togglePanel', =>
+          @i class: 'icon icon-fold'
       @div class: 'group-results', outlet: 'resultList'
 
   initialize: (params) ->
@@ -27,6 +29,9 @@ class ResultGroupView extends ScrollView
       new ResultView(result)
     for view in views
       @resultList.append(view)
+
+  togglePanel: =>
+    @builder.toggleResults()
 
 
 module.exports = ResultGroupView

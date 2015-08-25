@@ -1,19 +1,32 @@
 # See https://atom.io/docs/latest/creating-a-package#menus for more details
 'context-menu':
   'atom-workspace': [{
-    label: 'GradleCI: toggle results',
-    command: 'gradle-ci:toggle-results'
+    label: 'GradleCI',
+    submenu: [
+      {
+        label: 'toggle results',
+        command: 'gradle-ci:toggle-results'
+      },
+      {
+        label: 'invoke build',
+        command: 'gradle-ci:invoke-build'
+      }
+    ]
   }]
 
-'menu': [
+menu: [
   {
-    'label': 'Packages'
-    'submenu': [
-      'label': 'GradleCI'
-      'submenu': [
+    label: 'Packages'
+    submenu: [
+      label: 'GradleCI'
+      submenu: [
         {
-          'label': 'Toggle Results',
-          'command': 'gradle-ci:toggle-results'
+          label: 'Toggle Results',
+          command: 'gradle-ci:toggle-results'
+        },
+        {
+          label: 'GradleCI: invoke build',
+          command: 'gradle-ci:invoke-build'
         }
       ]
     ]
