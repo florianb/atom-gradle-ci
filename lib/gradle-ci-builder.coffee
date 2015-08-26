@@ -117,7 +117,7 @@ class GradleCiBuilder
       @invokeBuild(path)
 
   invokeBuild: (path) =>
-    @log 'invoking build.'
+    @log "invoking build on: #{path}"
     unless @running
       @running = true # block build-runner
 

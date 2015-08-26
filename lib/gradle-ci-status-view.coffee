@@ -17,7 +17,7 @@ class GradleCiStatusView extends View
     super
     @builder = params.builder
     @tile = null
-    @builder.log "StatusView: initialized."
+    @builder.log("StatusView: initialized.")
 
   registerTile: (statusBar) ->
     @tile = statusBar.addRightTile(item: this)
@@ -26,7 +26,7 @@ class GradleCiStatusView extends View
     @remove()
     @tile.destroy() if @tile
     @tooltip.dispose() if @tooltip
-    @builder.log 'StatusView: destroyed.'
+    @builder.log('StatusView: destroyed.')
 
   setTooltip: (message) =>
     @tooltip.dispose() if @tooltip
