@@ -1,4 +1,7 @@
 require 'atom'
+fs = require 'fs'
+path = require 'path'
+
 shell = require 'shelljs'
 
 
@@ -14,6 +17,8 @@ class GradleCiBuilder
   enabled: false
   runnning: false
   pending: false
+  buildfiles: []
+  repositoryDisposables: []
   results: []
   gradleCli: 'gradle'
   execAsyncAndSilent: { async: true, silent: true }
@@ -41,6 +46,8 @@ class GradleCiBuilder
       @runTasks = atom.config.get 'gradle-ci.runTasks'
     atom.config.observe 'gradle-ci.maximumResultHistory', =>
       @maximumResultHistory = atom.config.get 'gradle-ci.maximumResultHistory'
+    atom.config.observe 'gradle-ci.buildFileName', =>
+      @buildfileName = atom.config.get 'gradle-ci.buildFileName'
 
     # register editor commands
     atom.commands.add 'atom-text-editor',
@@ -52,7 +59,6 @@ class GradleCiBuilder
     # TODO: implement use of git-repositories
     @setBuildFiles()
 
-
     # start asynchronous gradle-check
     shell.exec(
       "#{@gradleCli} --version",
@@ -63,6 +69,7 @@ class GradleCiBuilder
 
   destroy: =>
     @log 'destroying builder.'
+    location.listener.dispose() for location in @buildfiles
     @statusView.destroy()
     @panel.destroy()
 
@@ -84,14 +91,38 @@ class GradleCiBuilder
       (repositories) =>
         @log "sucessfully fetched #{repositories.length} repository/ies"
         if repositories.length > 0
+          # release further callbacks for reset
+          location.listener.dispose() for location in @buildfiles
+          @buildfiles = []
+          for repository in repositories
+            workingDirectory = repository.getWorkingDirectory()
+            buildfile = path.join(workingDirectory, @buildfileName)
+            fs.access(buildfile, fs.R_OK, (err) =>
+              if err
+                @error "the buildfile '#{buildfile}' is inaccessible."
+              else
+                location = {
+                  directory: buildfile
+                  callback: () =>
+                    @invokeBuild(workingDirectory)
+                  listener: null
+                }
+                @buildfiles.push(location)
+                location.listener = repository.onDidChangeStatuses(location.callback)
+            )
+          if @buildfiles.length > 0
+
+          else
+            @disableBuilder("No buildfiles found fo this project.")
         else
-          @tooltip.dispose() if @tooltip
+          @disableBuilder("No Git-repositories found for this project.")
       (failure) =>
         @disableBuilder("An error occured during the search for repositories.", "could not fetch repositories: " + failure)
     )
 
 
   disableBuilder: (message, errormessage) =>
+    callback.dispose() for callback in @repositoryDisposables
     @statusView.setIcon('disabled')
     @statusView.setTooltip(message)
     @enabled = false
