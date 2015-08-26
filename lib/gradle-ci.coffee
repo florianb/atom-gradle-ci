@@ -24,6 +24,10 @@ module.exports =
       description: 'Colorizes the status-bar-icons in green/red, to recognize them faster. You may disable the colors to let the icons be less disturbing.'
       type: 'boolean'
       default: true
+    buildFileName:
+      title: 'Buildfile-name to search for.'
+      type: 'string'
+      default: 'build.gradle'
 
   builder: null
 
