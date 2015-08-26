@@ -24,9 +24,13 @@ class GradleCiStatusView extends View
 
   destroy: =>
     @remove()
-    if @tile
-      @tile.destroy()
+    @tile.destroy() if @tile
+    @tooltip.dispose() if @tooltip
     @builder.log 'StatusView: destroyed.'
+
+  setTooltip: (message) =>
+    @tooltip.dispose() if @tooltip
+    @tooltip = atom.tooltips.add(this, {title: message})
 
   setLabel: (label) =>
     @statusLabel.text(label)

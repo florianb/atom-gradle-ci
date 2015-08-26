@@ -50,9 +50,7 @@ class GradleCiBuilder
 
     # create build-paths
     # TODO: implement use of git-repositories
-    console.log "GradleCI: fetching project-directories, searching for build-files."
-    @projectDirectories = atom.project.getDirectories()
-    @projectDirectories.filter (currentDirectory) -> currentDirectory.contains('build.gradle')
+    @setBuildFiles()
 
 
     # start asynchronous gradle-check
@@ -65,8 +63,6 @@ class GradleCiBuilder
 
   destroy: =>
     @log 'destroying builder.'
-    if @tooltip
-      @tooltip.dispose()
     @statusView.destroy()
     @panel.destroy()
 
@@ -77,25 +73,43 @@ class GradleCiBuilder
     if @groupView
       @groupView.renderResults()
 
+  setBuildFiles: =>
+    @log "fetching project-repositories, searching for build-files."
+
+    Promise.all(
+      atom.project.getDirectories().map(
+        atom.project.repositoryForDirectory.bind(atom.project)
+      )
+    ).then(
+      (repositories) =>
+        @log "sucessfully fetched #{repositories.length} repository/ies"
+        if repositories.length > 0
+        else
+          @tooltip.dispose() if @tooltip
+      (failure) =>
+        @disableBuilder("An error occured during the search for repositories.", "could not fetch repositories: " + failure)
+    )
+
+
+  disableBuilder: (message, errormessage) =>
+    @statusView.setIcon('disabled')
+    @statusView.setTooltip(message)
+    @enabled = false
+    @error errormessage if errormessage
+
   checkVersion: (errorcode, output) =>
     versionRegEx = /Gradle ([\d\.]+)/
     @log("going for version-check.")
-
-    # dispose tooltip if already set
-    if @tooltip
-      @tooltip.dispose()
 
     # if gradle was sucessfully invoked
     if errorcode == 0 and output.length > 0 and versionRegEx.test(output)
       version = versionRegEx.exec(output)[1]
       @enabled = true # enable the builder
       @statusView.setLabel('Gradle ' + version)
-      @tooltip = atom.tooltips.add(@statusView, {title: 'You don\'t have any builds yet.'})
+      @statusView.setTooltip('You don\'t have any builds yet.')
       @log("Gradle #{version} ready to use.")
     else # otherwise display an error
-      @statusView.setIcon('disabled')
-      @tooltip = atom.tooltips.add(@statusView, {title: "I'm not able to execute `gradle`."})
-      error("Gradle wasn't executable: " + output)
+      disableBuilder("I'm not able to execute `gradle`.", "Gradle wasn't executable: " + output)
 
   directoryChangedEvent: (path) =>
     @log 'the project-directory "' + path + '" did change.'
@@ -126,9 +140,7 @@ class GradleCiBuilder
       unless @panel.active
         @panel.active = true
 
-      if @tooltip
-        @tooltip.dispose()
-        @tooltip = atom.tooltips.add(@statusView, {title: "Click me to toggle your build-reports."})
+      @statusView.setTooltip("Click me to toggle your build-reports.")
 
       @groupView.header.text('GradleCI ' +
         atom.packages.getActivePackage('gradle-ci').metadata.version)
