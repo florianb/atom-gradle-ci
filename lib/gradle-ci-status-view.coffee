@@ -17,7 +17,7 @@ class GradleCiStatusView extends View
     super
     @builder = params.builder
     @tile = null
-    console.log "GradleCI: StatusView: initialized."
+    @builder.log "StatusView: initialized."
 
   registerTile: (statusBar) ->
     @tile = statusBar.addRightTile(item: this)
@@ -26,7 +26,7 @@ class GradleCiStatusView extends View
     @remove()
     if @tile
       @tile.destroy()
-    console.log 'GradleCI: statusView destroyed.'
+    @builder.log 'StatusView: destroyed.'
 
   setLabel: (label) =>
     @statusLabel.text(label)

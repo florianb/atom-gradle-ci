@@ -19,7 +19,7 @@ class GradleCiBuilder
   execAsyncAndSilent: { async: true, silent: true }
 
   constructor: ->
-    console.log 'GradleCI: initializing builder.'
+    @log 'initializing builder.'
 
     # initialize views
     @statusView = new GradleCiStatusView({ builder: this })
@@ -54,12 +54,6 @@ class GradleCiBuilder
     @projectDirectories = atom.project.getDirectories()
     @projectDirectories.filter (currentDirectory) -> currentDirectory.contains('build.gradle')
 
-    for currentDirectory in @projectDirectories
-      path = currentDirectory.getPath()
-      console.log "GradleCI: activating watch for: " + path
-      currentDirectory.onDidChange(
-        => @directoryChangedEvent(path)
-      )
 
     # start asynchronous gradle-check
     shell.exec(
@@ -67,10 +61,10 @@ class GradleCiBuilder
       @execAsyncAndSilent,
       this.checkVersion
     )
-    console.log "GradleCI: pre-initialization of the builder done."
+    @log "pre-initialization of the builder done."
 
   destroy: =>
-    console.log 'GradleCI: destroying builder.'
+    @log 'destroying builder.'
     if @tooltip
       @tooltip.dispose()
     @statusView.destroy()
@@ -79,13 +73,13 @@ class GradleCiBuilder
   historyLimitChanged: =>
     @maximumResultHistory =
       atom.config.get('gradle-ci.maximumResultHistory')
-    console.log "GradleCI: the history-limit did change to #{@maximumResultHistory}."
+    @log "the history-limit did change to #{@maximumResultHistory}."
     if @groupView
       @groupView.renderResults()
 
   checkVersion: (errorcode, output) =>
     versionRegEx = /Gradle ([\d\.]+)/
-    console.log("GradleCI: going for version-check.")
+    @log("going for version-check.")
 
     # dispose tooltip if already set
     if @tooltip
@@ -97,19 +91,19 @@ class GradleCiBuilder
       @enabled = true # enable the builder
       @statusView.setLabel('Gradle ' + version)
       @tooltip = atom.tooltips.add(@statusView, {title: 'You don\'t have any builds yet.'})
-      console.log("GradleCI: Gradle #{version} ready to use.")
+      @log("Gradle #{version} ready to use.")
     else # otherwise display an error
       @statusView.setIcon('disabled')
       @tooltip = atom.tooltips.add(@statusView, {title: "I'm not able to execute `gradle`."})
-      console.error("GradleCI: Gradle wasn't executable: " + output)
+      error("Gradle wasn't executable: " + output)
 
   directoryChangedEvent: (path) =>
-    console.log 'GradleCI: the project-directory "' + path + '" did change.'
+    @log 'the project-directory "' + path + '" did change.'
     if @triggerBuildAfterSave
       @invokeBuild(path)
 
   invokeBuild: (path) =>
-    console.log 'GradleCI: invoking build.'
+    @log 'invoking build.'
     unless @running
       @running = true # block build-runner
 
@@ -119,7 +113,7 @@ class GradleCiBuilder
         commands.push('--daemon')
       commands.push(@runTasks)
 
-      console.log 'GradleCI: prepared build command: ' + commands.join(' ')
+      @log 'prepared build command: ' + commands.join(' ')
       shell.exec(commands.join(' '), @execAsyncAndSilent, @analyzeBuildResults)
       @statusView.setIcon('running')
     else
@@ -127,7 +121,7 @@ class GradleCiBuilder
         @pending = path
 
   analyzeBuildResults: (errorcode, output) =>
-    console.log "GradleCI: analyzing last build."
+    @log "analyzing last build."
     if @results.length == 0
       unless @panel.active
         @panel.active = true
@@ -170,5 +164,19 @@ class GradleCiBuilder
     if !@panel.isVisible()
       @groupView.renderResults()
     @panel.toggle()
+
+  log: (text) =>
+   @logger 'log', text
+
+  error: (text) =>
+   @logger 'error', text
+
+  logger: (level, text) =>
+    text = "GradleCi: " + text
+    switch level
+      when "log"
+        console.log text
+      when "error"
+        console.error text
 
 module.exports = GradleCiBuilder

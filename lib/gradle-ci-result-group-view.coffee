@@ -17,13 +17,13 @@ class ResultGroupView extends ScrollView
   initialize: (params) ->
     super
     @builder = params.builder
-    console.log 'GradleCI: ResultGroupView: initialized'
+    @builder.log 'ResultGroupView: initialized.'
 
   renderResults: =>
     #if @parentView.isVisible()
-    console.log 'GradleCI: ResultGroupView: setting ' +
+    @builder.log 'GradleCI: ResultGroupView: setting ' +
       @builder.results.length +
-      ' result/s'
+      ' result/s.'
     @resultList.empty()
     views = @builder.results.map (result) ->
       new ResultView(result)

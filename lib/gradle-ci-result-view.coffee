@@ -13,7 +13,7 @@ class ResultView extends View
     super
     @header.text(timeAgo(params.timestamp))
     @output.text(params.output)
-    console.log 'GradleCI: ResultView: initialize'
+    @builder.log 'ResultView: initialized.'
 
 
 module.exports = ResultView
