@@ -44,6 +44,10 @@ After the result-pane is opened, you may change its size with drag'n'drop. You c
 
 ## Release Notes
 
+### 1.0.1
+ - Modified require-statements to be more precise.
+ - Removed testfiles which were synced accidentially.
+
 ### 1.0.0
  - Fixed API 1.x incompatibility
  - Added support for multiple project-paths within a project.
