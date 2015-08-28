@@ -13,7 +13,8 @@
     "damals": "^0.9.0",
     "diff": "^1.0.8",
     "atom-space-pen-views": "^2.0.3",
-    "atom-panetastic": "^0.1.4"
+    "atom-panetastic": "^0.1.4",
+    "pathwatcher": "4.4.3"
   },
   "consumedServices": {
     "status-bar": {

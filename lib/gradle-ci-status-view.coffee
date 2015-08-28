@@ -37,22 +37,23 @@ class GradleCiStatusView extends View
 
   setIcon: (status) =>
     if @tile
-      icon = switch status
-        when 'disabled' then 'alert'
-        when 'running' then 'hourglass'
-        when 'succeeded' then 'beer'
-        when 'failed' then 'bug'
-        else 'circle-slash'
+      @statusIcon.removeClass()
+      if status
+        icon = switch status
+          when 'exception' then 'alert'
+          when 'running' then 'hourglass'
+          when 'succeeded' then 'check'
+          when 'failed' then 'bug'
 
-      @statusIcon.removeClass().addClass("icon icon-#{icon}")
+        @statusIcon.addClass("icon icon-#{icon}")
 
-      iconColor = switch status
-        when 'succeeded' then 'text-success'
-        when 'failed' then 'text-error'
-        else ''
+        iconColor = switch status
+          when 'succeeded' then 'text-success'
+          when 'failed' then 'text-error'
+          else ''
 
-      if @builder.colorStatusIcon and iconColor
-        @statusIcon.addClass("#{iconColor}")
+        if @builder.colorStatusIcon and iconColor
+          @statusIcon.addClass("#{iconColor}")
 
   #atom.workspaceView.statusBar.appendRight(this) unless $(this).is(':visible')
 

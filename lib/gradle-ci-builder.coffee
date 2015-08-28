@@ -2,6 +2,8 @@ require 'atom'
 fs = require 'fs'
 path = require 'path'
 
+{Directory} = require 'pathwatcher'
+
 shell = require 'shelljs'
 
 
@@ -18,7 +20,8 @@ class GradleCiBuilder
   runnning: false
   pending: false
   buildfiles: []
-  repositoryDisposables: []
+  buildQueue: []
+  textEditorObservers: {}
   results: []
   gradleCli: 'gradle'
   execAsyncAndSilent: { async: true, silent: true }
@@ -26,9 +29,12 @@ class GradleCiBuilder
   constructor: ->
     @log 'initializing builder.'
 
-    # initialize views
+    # initialize the statsview immediately
     @statusView = new GradleCiStatusView({ builder: this })
 
+    setTimeout(@lazyLoad, 0)
+
+  lazyLoad: () =>
     # create panetastic-instance
     @panel = new Panetastic(
       view: GradleCiResultGroupView,
@@ -47,83 +53,94 @@ class GradleCiBuilder
     atom.config.observe 'gradle-ci.maximumResultHistory', =>
       @maximumResultHistory = atom.config.get 'gradle-ci.maximumResultHistory'
     atom.config.observe 'gradle-ci.buildFileName', =>
-      @buildfileName = atom.config.get 'gradle-ci.buildFileName'
+      @buildfileName = atom.config.get 'gradle-ci.buildfileName'
 
     # register editor commands
     atom.commands.add 'atom-text-editor',
       "gradle-ci:toggle-results", => @toggleResults()
     atom.commands.add 'atom-text-editor',
-      "gradle-ci:invoke-build", => @invokeBuild()
+      "gradle-ci:invoke-build", => @enqueueAllBuildPaths()
 
-    # create build-paths
-    # TODO: implement use of git-repositories
+    # observe buildpaths
+    atom.project.onDidChangePaths(@setBuildFiles)
+    # initially set the buildfiles after startup
     @setBuildFiles()
+
+    # observe TextEditors to watch save-events
+    @textEditorsObserver = atom.workspace.observeTextEditors(@hookInTextEditorEvents)
 
     # start asynchronous gradle-check
     shell.exec(
       "#{@gradleCli} --version",
       @execAsyncAndSilent,
-      this.checkVersion
+      @checkVersion
     )
     @log "pre-initialization of the builder done."
 
+
   destroy: =>
     @log 'destroying builder.'
-    location.listener.dispose() for location in @buildfiles
+    @enabled = false
+    # dispose dedicated textEditor-observers for onDidSave and onDidDestroy
+    for currentObserver in @textEditorObservers
+      for handler in currentObserver.handlers
+        handler.dispose()
+    @textEditorsObserver.dispose() if @textEditorsObserver
     @statusView.destroy()
     @panel.destroy()
 
-  historyLimitChanged: =>
-    @maximumResultHistory =
-      atom.config.get('gradle-ci.maximumResultHistory')
-    @log "the history-limit did change to #{@maximumResultHistory}."
-    if @groupView
-      @groupView.renderResults()
+  hookInTextEditorEvents: (textEditor) =>
+    currentPath = textEditor.getPath()
+    currentObserver = @textEditorObservers[currentPath]
+
+    unless currentObserver
+      @log "hooking into save-events for '#{currentPath}'."
+      observer = {
+        path: currentPath
+        invoker: () =>
+          @enqueueBuild(currentPath)
+        remover: () =>
+          @removeHooks(currentPath)
+        handlers: []
+      }
+      observer.handlers.push(textEditor.onDidSave(observer.invoker))
+      observer.handlers.push(textEditor.onDidDestroy(observer.remover))
+      @textEditorObservers[currentPath] = observer
+
+  removeHooks: (givenPath) =>
+    currentObserver = @textEditorObservers[givenPath]
+
+    if currentObserver
+      @log "removing hooks for '#{givenPath}'."
+      handler.dispose() for handler in currentObserver.handlers
+      @textEditorObservers[givenPath] = null
 
   setBuildFiles: =>
-    @log "fetching project-repositories, searching for build-files."
+    @log "fetching projectpaths, searching for build-files."
 
-    Promise.all(
-      atom.project.getDirectories().map(
-        atom.project.repositoryForDirectory.bind(atom.project)
-      )
-    ).then(
-      (repositories) =>
-        @log "sucessfully fetched #{repositories.length} repository/ies"
-        if repositories.length > 0
-          # release further callbacks for reset
-          location.listener.dispose() for location in @buildfiles
-          @buildfiles = []
-          for repository in repositories
-            workingDirectory = repository.getWorkingDirectory()
-            buildfile = path.join(workingDirectory, @buildfileName)
-            fs.access(buildfile, fs.R_OK, (err) =>
-              if err
-                @error "the buildfile '#{buildfile}' is inaccessible."
-              else
-                location = {
-                  directory: buildfile
-                  callback: () =>
-                    @invokeBuild(workingDirectory)
-                  listener: null
-                }
-                @buildfiles.push(location)
-                location.listener = repository.onDidChangeStatuses(location.callback)
-            )
-          if @buildfiles.length > 0
-
+    @buildfiles = []
+    projectPaths = atom.project.getPaths()
+    for currentPath in projectPaths
+      @log "examining path #{currentPath}"
+      checkBuildFileAccess = (projectPath, buildfileName) =>
+        file = path.join(projectPath, buildfileName)
+        fs.access(file, fs.R_OK, (err) =>
+          if err
+            console.error "the buildfile '#{file}' is inaccessible."
+            if @buildfiles.length <= 0
+              @disableBuilder("No buildfiles found.")
           else
-            @disableBuilder("No buildfiles found fo this project.")
-        else
-          @disableBuilder("No Git-repositories found for this project.")
-      (failure) =>
-        @disableBuilder("An error occured during the search for repositories.", "could not fetch repositories: " + failure)
-    )
-
+            console.log "registering buildfile '#{file}'."
+            @buildfiles.push({
+              buildfile: file
+              projectPath: projectPath
+            })
+        )
+      checkBuildFileAccess(currentPath, @buildfileName)
 
   disableBuilder: (message, errormessage) =>
-    callback.dispose() for callback in @repositoryDisposables
-    @statusView.setIcon('disabled')
+    # dispose dedicated textEditor-observers for onDidSave and onDidDestroy
+    @statusView.setIcon() # remove icon from status-bar
     @statusView.setTooltip(message)
     @enabled = false
     @error errormessage if errormessage
@@ -135,35 +152,43 @@ class GradleCiBuilder
     # if gradle was sucessfully invoked
     if errorcode == 0 and output.length > 0 and versionRegEx.test(output)
       version = versionRegEx.exec(output)[1]
-      @enabled = true # enable the builder
+      @enabled = true # enable builder
       @statusView.setLabel('Gradle ' + version)
       @statusView.setTooltip('You don\'t have any builds yet.')
       @log("Gradle #{version} ready to use.")
     else # otherwise display an error
       disableBuilder("I'm not able to execute `gradle`.", "Gradle wasn't executable: " + output)
 
-  directoryChangedEvent: (path) =>
-    @log 'the project-directory "' + path + '" did change.'
-    if @triggerBuildAfterSave
-      @invokeBuild(path)
+  enqueueAllBuildPaths: () =>
+    for currentTexteditor in atom.workspace.getTextEditors()
+      @enqueueBuild(currentTexteditor.getPath())
 
-  invokeBuild: (path) =>
-    @log "invoking build on: #{path}"
-    unless @running
+  enqueueBuild: (currentPath) =>
+    [projectPath, relativePath] = atom.project.relativizePath(currentPath)
+    for buildfile in @buildfiles
+      if buildfile.projectPath == projectPath
+        if projectPath not in @buildQueue
+          @log "enqueuing build on: #{buildfile.buildfile}"
+          @buildQueue.push(projectPath)
+          @invokeBuild()
+
+  invokeBuild: =>
+    if not @running and @buildQueue.length > 0
       @running = true # block build-runner
 
+      currentPath = @buildQueue.shift()
+
       commands = [@gradleCli]
-      commands.push("--project-dir " + path)
-      if @runAsDaemon
-        commands.push('--daemon')
+      commands.push("--build-file #{path.join(currentPath, @buildfileName)}")
+      commands.push("--project-dir #{currentPath}")
+      commands.push('--daemon') if @runAsDaemon
       commands.push(@runTasks)
 
-      @log 'prepared build command: ' + commands.join(' ')
-      shell.exec(commands.join(' '), @execAsyncAndSilent, @analyzeBuildResults)
+      command = commands.join(' ')
+
+      @log 'prepared build command: ' + command
+      shell.exec(command, @execAsyncAndSilent, @analyzeBuildResults)
       @statusView.setIcon('running')
-    else
-      unless @pending
-        @pending = path
 
   analyzeBuildResults: (errorcode, output) =>
     @log "analyzing last build."
@@ -196,11 +221,10 @@ class GradleCiBuilder
       @groupView.renderResults()
 
     # free the build-runner or invoke pending build
-    unless @pending
-      @running = false # free the build runner
+    if @buildQueue.length > 0
+      @invokeBuild()
     else
-      invokeBuild(@pending)
-      @pending = false
+      @running = false # free the build runner
 
   # toggles the result-panel - this works only if the @panel is previously set to active
   toggleResults: =>

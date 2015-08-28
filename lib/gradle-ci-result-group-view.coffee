@@ -20,15 +20,15 @@ class ResultGroupView extends ScrollView
     @builder.log('ResultGroupView: initialized.')
 
   renderResults: =>
-    #if @parentView.isVisible()
-    @builder.log('GradleCI: ResultGroupView: setting ' +
-      @builder.results.length +
-      ' result/s.')
-    @resultList.empty()
-    views = @builder.results.map (result) ->
-      new ResultView(result)
-    for view in views
-      @resultList.append(view)
+    if @builder.results.length > 0
+      @builder.log('GradleCI: ResultGroupView: setting ' +
+        @builder.results.length +
+        ' result/s.')
+      @resultList.empty()
+      views = @builder.results.map (result) ->
+        new ResultView(result)
+      for view in views
+        @resultList.append(view)
 
   togglePanel: =>
     @builder.toggleResults()
