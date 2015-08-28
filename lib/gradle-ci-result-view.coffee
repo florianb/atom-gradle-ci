@@ -1,5 +1,5 @@
 {View} = require 'atom-space-pen-views'
-timeAgo = require 'damals'
+{timeAgo} = require 'damals'
 
 
 class ResultView extends View

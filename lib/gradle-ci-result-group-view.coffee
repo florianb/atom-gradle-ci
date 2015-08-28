@@ -1,4 +1,4 @@
-{$, ScrollView} = require 'atom-space-pen-views'
+{ScrollView} = require 'atom-space-pen-views'
 
 ResultView = require './gradle-ci-result-view'
 

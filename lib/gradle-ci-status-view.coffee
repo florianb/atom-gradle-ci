@@ -1,5 +1,5 @@
-{$, View} = require 'atom-space-pen-views'
-shell = require 'shelljs'
+{View} = require 'atom-space-pen-views'
+{shell} = require 'shelljs'
 
 
 ResultGroupView = require './gradle-ci-result-group-view'
