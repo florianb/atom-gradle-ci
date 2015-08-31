@@ -173,7 +173,7 @@ class GradleCiBuilder
           @invokeBuild()
 
   invokeBuild: =>
-    if not @running and @buildQueue.length > 0
+    if @running == false and @buildQueue.length > 0
       @running = true # block build-runner
 
       currentPath = @buildQueue.shift()
@@ -220,11 +220,9 @@ class GradleCiBuilder
     if @panel.isVisible()
       @groupView.renderResults()
 
-    # free the build-runner or invoke pending build
-    if @buildQueue.length > 0
-      @invokeBuild()
-    else
-      @running = false # free the build runner
+    @running = false
+    @invokeBuild()
+
 
   # toggles the result-panel - this works only if the @panel is previously set to active
   toggleResults: =>
