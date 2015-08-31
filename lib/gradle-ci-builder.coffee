@@ -17,7 +17,7 @@ class GradleCiBuilder
   groupView: null
   tooltip: null
   enabled: false
-  runnning: false
+  running: false
   pending: false
   buildfiles: []
   buildQueue: []
@@ -28,7 +28,6 @@ class GradleCiBuilder
 
   constructor: ->
     @log 'initializing builder.'
-
     # initialize the statsview immediately
     @statusView = new GradleCiStatusView({ builder: this })
 
@@ -127,8 +126,6 @@ class GradleCiBuilder
         fs.access(file, fs.R_OK, (err) =>
           if err
             console.error "the buildfile '#{file}' is inaccessible."
-            if @buildfiles.length <= 0
-              @disableBuilder("No buildfiles found.")
           else
             console.log "registering buildfile '#{file}'."
             @buildfiles.push({
@@ -173,7 +170,7 @@ class GradleCiBuilder
           @invokeBuild()
 
   invokeBuild: =>
-    if @running == false and @buildQueue.length > 0
+    if @running == false and @enabled == true and @buildQueue.length > 0
       @running = true # block build-runner
 
       currentPath = @buildQueue.shift()
