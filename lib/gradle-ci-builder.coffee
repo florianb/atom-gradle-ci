@@ -157,7 +157,7 @@ class GradleCiBuilder
       @statusView.setTooltip('You don\'t have any builds yet.')
       @log("Gradle #{version} ready to use.")
     else # otherwise display an error
-      disableBuilder("I'm not able to execute `gradle`.", "Gradle wasn't executable: " + output)
+      @disableBuilder("I'm not able to execute `gradle`.", "Gradle wasn't executable: " + output)
 
   enqueueAllBuildPaths: () =>
     for currentTexteditor in atom.workspace.getTextEditors()
