@@ -28,6 +28,13 @@ module.exports =
       title: 'Buildfile-name to search for.'
       type: 'string'
       default: 'build.gradle'
+    gradleWrappers:
+      title: 'Build-commands to try for build-invokation.'
+      description: 'Comma separated list of build-commands which will be checked immediately after the package-startup. The given commands will be tested from left to right and must support the same command-line-interface as Gradle itself. As default the availability of `gw` (http://www.gdub.rocks/) will be checked before the `gradle`-command is used.'
+      type: 'array'
+      default: ['gw', 'gradle']
+      items:
+        type: 'string'
 
   builder: null
 

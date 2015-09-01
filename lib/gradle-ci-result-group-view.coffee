@@ -9,7 +9,8 @@ class ResultGroupView extends ScrollView
   @content: ->
     @div class: 'gradle-ci', =>
       @div class: 'group-header', =>
-        @span 'GradleCI', class: 'inline-block highlight', outlet: 'header'
+        @span 'gradle', class: 'inline-block highlight', outlet: 'buildCommand'
+        @span 'GradleCI', class: 'inline-block highlight', outlet: 'gradleCiVersion'
         @span class: 'close-button inline-block', click: 'togglePanel', =>
           @i class: 'icon icon-fold'
       @div class: 'group-results', outlet: 'resultList'

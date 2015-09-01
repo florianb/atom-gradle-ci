@@ -23,7 +23,7 @@ class GradleCiBuilder
   buildQueue: []
   textEditorObservers: {}
   results: []
-  gradleCli: 'gradle'
+  gradleCli: ''
   execAsyncAndSilent: { async: true, silent: true }
 
   constructor: ->
@@ -54,6 +54,8 @@ class GradleCiBuilder
     atom.config.observe 'gradle-ci.buildFileName', =>
       @buildfileName = atom.config.get 'gradle-ci.buildfileName'
 
+    @gradleWrappers = atom.config.get('gradle-ci.gradleWrappers')
+
     # register editor commands
     atom.commands.add 'atom-text-editor',
       "gradle-ci:toggle-results", => @toggleResults()
@@ -68,13 +70,23 @@ class GradleCiBuilder
     # observe TextEditors to watch save-events
     @textEditorsObserver = atom.workspace.observeTextEditors(@hookInTextEditorEvents)
 
-    # start asynchronous gradle-check
-    shell.exec(
-      "#{@gradleCli} --version",
-      @execAsyncAndSilent,
-      @checkVersion
-    )
+    # test wrappers
+    @testWrappers()
+
     @log "pre-initialization of the builder done."
+
+  testWrappers: =>
+    if @gradleWrappers.length > 0
+      @gradleCli = @gradleWrappers.shift()
+      @log "Checking availability of the '#{@gradleCli}'-command."
+      # start asynchronous wrapper-check
+      shell.exec(
+        "#{@gradleCli} --version",
+        @execAsyncAndSilent,
+        @checkVersion
+      )
+    else
+      @disableBuilder("There's no wrapper-command left, all prior calls failed.", "Gradle seems to be not executable.")
 
 
   destroy: =>
@@ -152,9 +164,9 @@ class GradleCiBuilder
       @enabled = true # enable builder
       @statusView.setLabel('Gradle ' + version)
       @statusView.setTooltip('You don\'t have any builds yet.')
-      @log("Gradle #{version} ready to use.")
-    else # otherwise display an error
-      @disableBuilder("I'm not able to execute `gradle`.", "Gradle wasn't executable: " + output)
+      @log("By invoking '#{@gradleCli}', Gradle #{version} is ready to use.")
+    else
+      @testWrappers() # test next wrapper
 
   enqueueAllBuildPaths: () =>
     for currentTexteditor in atom.workspace.getTextEditors()
@@ -195,7 +207,8 @@ class GradleCiBuilder
 
       @statusView.setTooltip("Click me to toggle your build-reports.")
 
-      @groupView.header.text('GradleCI ' +
+      @groupView.buildCommand.text("Building with `#{@gradleCli}`")
+      @groupView.gradleCiVersion.text('GradleCI ' +
         atom.packages.getActivePackage('gradle-ci').metadata.version)
 
     if @results.length >= @maximumResultHistory
