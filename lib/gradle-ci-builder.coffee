@@ -156,7 +156,6 @@ class GradleCiBuilder
 
   checkVersion: (errorcode, output) =>
     versionRegEx = /Gradle ([\d\.]+)/
-    @log("going for version-check.")
 
     # if gradle was sucessfully invoked
     if errorcode == 0 and output.length > 0 and versionRegEx.test(output)
@@ -171,6 +170,8 @@ class GradleCiBuilder
   enqueueAllBuildPaths: () =>
     for currentTexteditor in atom.workspace.getTextEditors()
       @enqueueBuild(currentTexteditor.getPath())
+    for currentProjectPath in atom.project.getPaths()
+      @enqueueBuild(currentProjectPath)
 
   enqueueBuild: (currentPath) =>
     [projectPath, relativePath] = atom.project.relativizePath(currentPath)
@@ -188,8 +189,8 @@ class GradleCiBuilder
       currentPath = @buildQueue.shift()
 
       commands = [@gradleCli]
-      commands.push("--build-file #{path.join(currentPath, @buildfileName)}")
-      commands.push("--project-dir #{currentPath}")
+      commands.push("--build-file \"#{path.join(currentPath, @buildfileName)}\"")
+      commands.push("--project-dir \"#{currentPath}\"")
       commands.push('--daemon') if @runAsDaemon
       commands.push(@runTasks)
 
