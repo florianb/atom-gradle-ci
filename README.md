@@ -1,6 +1,6 @@
 # GradleCI
 
-> Thanks for your patience during the rewrite. Please leave me feedback, i'd like to make the package better -- Florian
+> NEW: support for `gw` (http://www.gdub.rocks/).
 
 Continuous builds with [Gradle](gradle.org)! Adds a CI-like package to your status bar, showing you the last build-status and let you access the latest build-reports.
 
@@ -16,9 +16,9 @@ I was - for example - planning, that the builds will be invoked by Git-commit. U
 
 #### Startup
 
-During startup GradleCI tries to call `gradle` via commandline to find out if Gradle is callable in general and which Version of Gradle you're running. The version-number might be used in the future to behave correctly - currently there is no known dependency on your Gradle-version.
+During startup GradleCI tries to call all given build-commands (f.e. `gw`, `gradle`) via commandline to find out if Gradle is callable in general and which Version of Gradle will be invoked. The version-number might be used in the future to behave correctly - currently there is no known dependency on your Gradle-version.
 
-If the invokation was successful, the statusbar-item is renamed to the version of Gradle.
+If the invokation was successful, the statusbar-item is renamed to the version of Gradle and in the result pane the invoked build-command is being displayed.
 
 #### Buildpath-Detection
 
@@ -43,6 +43,9 @@ If you already have some results you have the possibility to toggle the result-p
 After the result-pane is opened, you may change its size with drag'n'drop. You can close the result pane the same ways you used to open it.
 
 ## Release Notes
+
+### 1.1.0
+ - :candy: Added support for custom build-commands - due to a feedback from [@lwis](https://github.com/lwis), thanks!
 
 ### 1.0.1
  - Modified require-statements to be more precise.
@@ -79,49 +82,17 @@ After the result-pane is opened, you may change its size with drag'n'drop. You c
 
 ## Configuring
 
-There are five settings - in your GradleCi's Atom package-settings - available.
-
-### Color Status Icon
-
-Lets you decide if the build-icon is colored or not. Only the two build-states "succeeded" (green) and "failed" (red) are colored to minimize disturbance.
-
-### Maximum Result History
-
-The result-history of build defaults to 3 results. You're able to change that number to every positive number. If the given number is invalid the setting defaults internally to 3 again.
-
-> **Warning** A higher number results in higher memory consumption (depending on the output of your gradle-configuration), this may slow down the whole editor in general.
-
-The result history is **not** perstisted between different use session. This feature is planned later on.
-
-### Run As Daemon
-
-Calls Gradle with the `--daemon`-option. Gradle then internally starts a daemon, which is able to cache a lot of work. This function is supposed to speed your build-process up to three times. As a Gradle standard the daemon dies automatically after three hours of inactivity.
-
-### Run Task
-
-This field may contain the task you'd like to call for your build. As a default the task `test` is defined. Since the content of that field is only appended to the commandline, you're free to use it to add options and arguments.
-
-### Trigger Build After Save
-
-This setting lets GradleCI listen to changes to the project-root-directory. The trigger may namely build after save but listens in fact on every change in the directory. So renaming, adding, deleting files will inoke a build, too.
-
-> GradleCi uses a library to watch the directory via filesystem-notifications if possible. If not it falls back (namely on Mac OS) to a polling mechanism. The polling-interval is currently set to 500ms to lower the resource consumption.
+All preferences of the package are elucidated in the preferences of the package.
 
 ## Limitations
 
-There are currently many limitations for the moment - please be patient:
-
- - `gradle` must be accessible in the "normal" environment.
- - ~~The package only holds 3 reports in the memory.~~
- - There's currently only the file-modification trigger.
- - There's currently **no** associated version to your build.
+ - Your build-command must be accessible in the "normal" environment.
 
 ## Roadmap
 
  - More robust gradle-execution, based on environment-vars
  - Displaying diffed build-results
- - Alternative triggers
- - Build-versions (does somebody need that?)
+ - Alternative triggers (it seems to be unlikely that this will ever happen)
  - Persistent results (between use-sessions)
 
 ## Contributing
