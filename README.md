@@ -2,7 +2,7 @@
 
 > NEW: support for `gw` (http://www.gdub.rocks/).
 
-Continuous builds with [Gradle](gradle.org)! Adds a CI-like package to your status bar, showing you the last build-status and let you access the latest build-reports.
+Continuous builds with [Gradle](http://gradle.org)! Adds a CI-like package to your status bar, showing you the last build-status and let you access the latest build-reports.
 
 ## How to use
 
