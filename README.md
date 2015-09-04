@@ -4,6 +4,8 @@
 
 Continuous builds with [Gradle](http://gradle.org)! Adds a CI-like package to your status bar, showing you the last build-status and let you access the latest build-reports.
 
+![Gradle-CI preview](http://g.recordit.co/h3qvD4D305.gif)
+
 ## How to use
 
 GradleCI watches your current project and invokes builds, everytime you're saving a file.
@@ -32,7 +34,7 @@ Every project-path which contains a build-file, which is readable by the current
 
 GradleCI observes every pane you have opened. Everytime you're saving a pane, GradleCI tries to get the corresponding build-path. If a build-path can be identified the build is scheduled. You're also able to invoke build manually by using the menu-entry.
 
-GradleCI enqueues all builds after the FIFO-principle. If you're changing a file in a project-directory, which currently i build, a second build is scheduled for that build-directory. This is done because GradleCI is not caching your project (for performance reasons) and i wasn't able to predict if your file changes will be recognized by the actual build.
+GradleCI enqueues all builds after the FIFO-principle. If you're changing a file in a project-directory, which currently gets built, a second build is scheduled for that directory. This is done because GradleCI is not caching your project (for performance reasons) and i'm not able to predict if your file changes will be recognized by the actual build.
 
 #### Presentation of the Build-Results
 
