@@ -14,7 +14,7 @@
     "diff": "^1.0.8",
     "atom-space-pen-views": "^2.0.3",
     "atom-panetastic": "^0.1.4",
-    "pathwatcher": "4.4.3"
+    "counterpart": "^0.16.4"
   },
   "consumedServices": {
     "status-bar": {

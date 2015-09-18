@@ -46,6 +46,9 @@ After the result-pane is opened, you may change its size with drag'n'drop. You c
 
 ## Release Notes
 
+### 1.1.4
+ - Fixed packaged-dependency which caused the package startup-failure.
+
 ### 1.1.0
  - :candy: Added support for custom build-commands - due to a feedback from [@lwis](https://github.com/lwis), thanks!
 
@@ -54,7 +57,7 @@ After the result-pane is opened, you may change its size with drag'n'drop. You c
  - Removed testfiles which were synced accidentially.
 
 ### 1.0.0
- - Fixed API 1.x incompatibility
+ - Fixed API 1.x incompatibility.
  - Added support for multiple project-paths within a project.
  - :candy: Added menu-entry for manual invokation of builds.
  - :candy: Added fold-button to the result-pane.

@@ -2,8 +2,6 @@ require 'atom'
 fs = require 'fs'
 path = require 'path'
 
-{Directory} = require 'pathwatcher'
-
 shell = require 'shelljs'
 
 
